@@ -27,7 +27,7 @@ bookRouter.post("/books", authMiddleware, async (req, res) => {
   }
 });
 
-bookRouter.put("/books/:id", async (req, res) => {
+bookRouter.put("/books/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const book = await Book.findById(id);

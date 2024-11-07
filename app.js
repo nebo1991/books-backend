@@ -3,10 +3,15 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const bookRouter = require("./routes/book.routes");
+const userRouter = require("./routes/user.routes");
 const app = express();
 require("dotenv").config();
-// const Cohort = require("../server/models/Cohort.model");
-// const Student = require("../server/models/Student.model");
+
+// Question
+app.use(express.json());
+// Question
+app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT;
 
@@ -16,6 +21,9 @@ mongoose
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   )
   .catch((err) => console.error("Error connecting to mongo", err));
+
+app.use("/", bookRouter);
+app.use("/", userRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
