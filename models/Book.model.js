@@ -29,6 +29,11 @@ const bookSchema = new Schema({
       "Romance",
     ],
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 const Book = mongoose.model("Book", bookSchema);
