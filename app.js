@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bookRouter = require("./routes/book.routes");
-const userRouter = require("./routes/user.routes");
+const authRouter = require("./routes/auth.routes");
 const app = express();
 require("dotenv").config();
 
@@ -23,7 +23,7 @@ mongoose
   .catch((err) => console.error("Error connecting to mongo", err));
 
 app.use("/", bookRouter);
-app.use("/", userRouter);
+app.use("/", authRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);

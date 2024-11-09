@@ -6,7 +6,7 @@ const bookRouter = express.Router();
 
 bookRouter.get("/books", async (req, res) => {
   try {
-    const foundBooks = await Books.find({});
+    const foundBooks = await Book.find({});
     res.status(201).json(foundBooks);
   } catch (error) {
     res.json({ message: "No books found" }).send();
@@ -15,9 +15,9 @@ bookRouter.get("/books", async (req, res) => {
 
 bookRouter.post("/books", authMiddleware, async (req, res) => {
   try {
-    const newBook = await Books.create({
+    const newBook = await Book.create({
       ...req.body,
-      createdBy: req.user.id,
+      createdBy: req.user._id,
     });
     res.status(201).json(newBook);
   } catch (error) {
@@ -37,7 +37,7 @@ bookRouter.put("/books/:id", authMiddleware, async (req, res) => {
       return;
     }
 
-    if (book.createdBy.toString() !== req.user.id) {
+    if (book.createdBy.toString() !== req.user._id) {
       res.status(403).json({
         message: "Unauthorized - you can only update books you have created",
       });
@@ -59,22 +59,24 @@ bookRouter.delete("/books/:id", authMiddleware, async (req, res) => {
 
   try {
     const book = await Book.findById(id);
+
     if (!book) {
-      res.status(404).json({ message: "Book not found" });
-      return;
+      return res.status(404).json({ message: "Book not found" });
     }
 
-    if (book.createdBy.toString() !== req.user.id) {
-      res.status(403).json({
+    if (book.createdBy.toString() !== req.user._id) {
+      return res.status(403).json({
         message: "Unauthorized - you can only delete books you've created",
       });
     }
+
     await Book.findByIdAndDelete(id);
-    res.json({ message: "Book successfully deleted" });
+    return res.json({ message: "Book successfully deleted" });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error deleting book", error: error.message });
+    return res.status(400).json({
+      message: "Error deleting book",
+      error: error.message,
+    });
   }
 });
 
