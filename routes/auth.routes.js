@@ -5,11 +5,11 @@ const User = require("../models/User.model");
 const authMiddleware = require("../middleware/auth.middleware");
 require("dotenv").config();
 
-const userRouter = express.Router();
+const authRouter = express.Router();
 
 require("dotenv").config();
 
-userRouter.post("/signup", async (req, res, next) => {
+authRouter.post("/signup", async (req, res, next) => {
   const { email, password, name } = req.body;
   try {
     if (!email || !password || !name) {
@@ -53,7 +53,7 @@ userRouter.post("/signup", async (req, res, next) => {
   }
 });
 
-userRouter.post("/login", async (req, res, next) => {
+authRouter.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -88,15 +88,15 @@ userRouter.post("/login", async (req, res, next) => {
       expiresIn: "6h",
     });
 
-    res.status(200).json({ authToken: authToken });
+    res.status(200).json({ authToken: authToken, id: _id });
   } catch (error) {
     console.error(error);
     next(error); // Remove res.status(500).json(...) here
   }
 });
 
-userRouter.get("/verify", authMiddleware, (req, res, next) => {
+authRouter.get("/verify", authMiddleware, (req, res, next) => {
   res.status(200).json({ loggedIn: true });
 });
 
-module.exports = userRouter;
+module.exports = authRouter;
