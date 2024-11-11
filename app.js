@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bookRouter = require("./routes/book.routes");
 const authRouter = require("./routes/auth.routes");
+const libraryRouter = require("./routes/library.routes");
 const app = express();
 require("dotenv").config();
 
@@ -24,6 +25,7 @@ mongoose
 
 app.use("/", bookRouter);
 app.use("/", authRouter);
+app.use("/", libraryRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
