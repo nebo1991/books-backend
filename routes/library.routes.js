@@ -20,35 +20,37 @@ libraryRouter.get("/libraries", authMiddleware, async (req, res) => {
 
 libraryRouter.post("/libraries", authMiddleware, async (req, res) => {
   try {
-    const { name, books = [] } = req.body;
-    const createdBy = req.user._id; // Assuming `authMiddleware` attaches user info to `req.user`
-
-    // Create a new library
     const newLibrary = await Library.create({
-      name,
-      books,
-      createdBy,
+      name: req.body.name,
+      createdBy: req.user._id,
+      books: req.body.books || [],
     });
 
-    res.status(201).json(newLibrary);
+    return res.status(201).json(newLibrary);
   } catch (error) {
-    res.status(500).json({ message: `${error.message}` });
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "You already have a library",
+      });
+    }
+
+    return res.status(400).json({
+      message: error.message || "Error creating library",
+    });
   }
 });
 
 libraryRouter.put("/libraries/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { bookId } = req.body; // Expecting bookId in the request body
+  const { bookId } = req.body;
 
   try {
-    // Check if library exists
     const library = await Library.findById(id);
 
     if (!library) {
       return res.status(404).json({ message: "Library not found" });
     }
 
-    // Check if the library belongs to the current user
     if (library.createdBy.toString() !== req.user._id) {
       return res.status(403).json({
         message:
@@ -56,11 +58,10 @@ libraryRouter.put("/libraries/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    // Add the book ID to the books array
     if (bookId) {
       const updatedLibrary = await Library.findByIdAndUpdate(
         id,
-        { $push: { books: bookId } }, // Using $push to add the book ID
+        { $push: { books: bookId } },
         { new: true }
       );
 
@@ -80,18 +81,16 @@ libraryRouter.put(
   "/libraries/:id/remove-book",
   authMiddleware,
   async (req, res) => {
-    const { id } = req.params; // Library ID
-    const { bookId } = req.body; // Book ID to remove
+    const { id } = req.params;
+    const { bookId } = req.body;
 
     try {
-      // Check if library exists
       const library = await Library.findById(id);
 
       if (!library) {
         return res.status(404).json({ message: "Library not found" });
       }
 
-      // Check if the library belongs to the current user
       if (library.createdBy.toString() !== req.user._id) {
         return res.status(403).json({
           message:
@@ -99,7 +98,6 @@ libraryRouter.put(
         });
       }
 
-      // Remove the book ID from the books array
       const updatedLibrary = await Library.findByIdAndUpdate(
         id,
         { $pull: { books: bookId } },
