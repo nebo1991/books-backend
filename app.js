@@ -8,6 +8,7 @@ const authRouter = require("./routes/auth.routes");
 const libraryRouter = require("./routes/library.routes");
 const app = express();
 require("dotenv").config();
+app.use(cors()); // Add this line to enable cross-origin requests
 
 // Question
 app.use(express.json());
