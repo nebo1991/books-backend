@@ -27,6 +27,24 @@ bookRouter.post("/books", authMiddleware, async (req, res) => {
   }
 });
 
+// Get a single book by ID
+bookRouter.get("/books/:id", authMiddleware, async (req, res) => {
+  const { id } = req.params; // Extract the book ID from the URL params
+  try {
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json(book);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error while fetching the book", error: error.message });
+  }
+});
+
 bookRouter.put("/books/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
