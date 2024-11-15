@@ -1,6 +1,7 @@
 const express = require("express");
 const Library = require("../models/Library.model");
 const User = require("../models/User.model");
+const mongoose = require("mongoose");
 
 const authMiddleware = require("../middleware/auth.middleware");
 const { models } = require("mongoose");
@@ -59,6 +60,10 @@ libraryRouter.put("/libraries/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { bookId } = req.body;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid Library ID" });
+  }
+
   try {
     const library = await Library.findById(id);
 
@@ -74,12 +79,16 @@ libraryRouter.put("/libraries/:id", authMiddleware, async (req, res) => {
     }
 
     if (bookId) {
-      const updatedLibrary = await Library.findByIdAndUpdate(
-        id,
-        { $push: { books: bookId } },
-        { new: true }
-      );
+      const isBookAlreadyInLibrary = library.books.includes(bookId);
 
+      if (isBookAlreadyInLibrary) {
+        return res.status(400).json({
+          message: "The book is already in the library",
+        });
+      }
+
+      library.books.push(bookId);
+      const updatedLibrary = await library.save();
       return res.status(200).json(updatedLibrary);
     } else {
       return res.status(400).json({ message: "No bookId provided" });
