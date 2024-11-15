@@ -21,6 +21,20 @@ libraryRouter.get("/libraries", authMiddleware, async (req, res) => {
   }
 });
 
+libraryRouter.get("/libraries/:id", authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const foundLibrary = await Library.findById(id).populate("books");
+
+    res.status(201).json(foundLibrary);
+  } catch (error) {
+    res.status(400).json({
+      message: "Error when fetching the libraries",
+      error: error.message,
+    });
+  }
+});
+
 libraryRouter.post("/libraries", authMiddleware, async (req, res) => {
   try {
     const userId = req.user._id;
