@@ -11,6 +11,11 @@ const userSchema = new Schema({
   name: {
     type: String,
   },
+  library: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Library",
+    default: null,
+  },
 });
 
 const User = mongoose.model("User", userSchema);
