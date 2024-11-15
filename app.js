@@ -6,28 +6,34 @@ const mongoose = require("mongoose");
 const bookRouter = require("./routes/book.routes");
 const authRouter = require("./routes/auth.routes");
 const libraryRouter = require("./routes/library.routes");
+require("dotenv").config();
+
 const app = express();
 require("dotenv").config();
-app.use(cors()); // Add this line to enable cross-origin requests
 
-// Question
+app.use(cors());
 app.use(express.json());
-// Question
 app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT;
 
+const mongoURI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/book-project";
+
+// Connect to MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/book-project")
-  .then((x) =>
-    console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
-  )
-  .catch((err) => console.error("Error connecting to mongo", err));
+  .connect(mongoURI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error: ", err));
 
 app.use("/", bookRouter);
 app.use("/", authRouter);
 app.use("/", libraryRouter);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
+
+module.exports = app;
