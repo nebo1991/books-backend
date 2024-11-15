@@ -1,5 +1,7 @@
 const express = require("express");
 const Library = require("../models/Library.model");
+const User = require("../models/User.model");
+
 const authMiddleware = require("../middleware/auth.middleware");
 const { models } = require("mongoose");
 
@@ -20,20 +22,33 @@ libraryRouter.get("/libraries", authMiddleware, async (req, res) => {
 
 libraryRouter.post("/libraries", authMiddleware, async (req, res) => {
   try {
+    const userId = req.user._id;
+
+    const existingLibrary = await Library.findOne({ createdBy: userId });
+    if (existingLibrary) {
+      return res.status(400).json({ message: "You already have a library" });
+    }
+
     const newLibrary = await Library.create({
       name: req.body.name,
-      createdBy: req.user._id,
+      createdBy: userId,
       books: req.body.books || [],
     });
 
-    return res.status(201).json(newLibrary);
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        message: "You already have a library",
-      });
-    }
+    console.log("New Library Created:", newLibrary);
 
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { library: newLibrary._id },
+      { new: true }
+    );
+
+    const populatedUser = await User.findById(userId).populate("library");
+    console.log("Populated User:", populatedUser);
+
+    return res.status(201).json(populatedUser);
+  } catch (error) {
+    console.error("Error creating library:", error);
     return res.status(400).json({
       message: error.message || "Error creating library",
     });
