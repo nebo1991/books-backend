@@ -29,6 +29,9 @@ mongoose
 app.use("/", bookRouter);
 app.use("/", authRouter);
 app.use("/", libraryRouter);
+app.get("/", (req, res) => {
+  res.send("Server is up and running!");
+});
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(port, () => {
