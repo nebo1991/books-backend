@@ -17,8 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT;
 
-const mongoURI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/book-project";
+const mongoURI = "mongodb://localhost:27017/book-project";
 
 // Connect to MongoDB
 mongoose
